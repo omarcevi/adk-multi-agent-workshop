@@ -5,6 +5,7 @@ source "$(dirname "$0")/common.sh"
 need_project
 SA=$(runtime_sa)
 for ROLE in roles/run.invoker roles/aiplatform.user roles/cloudtrace.agent roles/logging.logWriter roles/monitoring.metricWriter; do
+  info "$ROLE -> Agent Runtime identity"
   gcloud projects add-iam-policy-binding "$GOOGLE_CLOUD_PROJECT" --condition=None --quiet \
     --member="serviceAccount:$SA" --role="$ROLE" >/dev/null
 done
