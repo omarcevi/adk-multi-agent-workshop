@@ -13,7 +13,9 @@ from pathlib import Path
 try:  # .env is optional; Agent Runtime injects env vars directly.
     from dotenv import load_dotenv
 
-    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+    # override: .env wins over the shell. `source env.sh` exports .env as it was
+    # then, and the helpers keep adding values (tool URLs, card URL) afterwards.
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=True)
 except ImportError:  # pragma: no cover
     pass
 

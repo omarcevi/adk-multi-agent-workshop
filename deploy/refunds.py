@@ -33,8 +33,8 @@ def main():
 
     import agentplatform
 
-    # Show the SDK's progress lines (LRO, logs URL) in .logs/refunds.log, so `make status`
-    # doesn't sit on its harmless "requirements are missing" warning for the whole build.
+    # Show the SDK's progress lines (LRO, logs URL). Otherwise the only output for the
+    # whole build is its harmless "requirements are missing" warning.
     logging.basicConfig(format="%(message)s")
     logging.getLogger("agentplatform_genai").setLevel(logging.INFO)
 
