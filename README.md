@@ -53,11 +53,12 @@ make check-mcp      # saves the URLs into .env; anonymous calls get 403, yours g
 **Tab 1:** start the ADK dev UI, then **Web Preview → Preview on port 8080** and pick `m1_mcp_tools`:
 
 ```bash
-adk web --host 0.0.0.0 --port 8080 --allow_origins "regex:https://.*\.cloudshell\.dev" checkpoints
+adk web --port 8080 --allow_origins "*" checkpoints
 ```
 
-The two extra flags are there because Web Preview is a proxy: `adk web` protects
-itself against requests from other hosts and origins unless you allow them.
+`--allow_origins` is there because Web Preview is a proxy: the page comes from a
+`*.cloudshell.dev` address, and `adk web` refuses requests from other origins (403)
+unless you allow them. `"*"` is fine for a dev UI that only you can reach through Web Preview.
 
 ## Module 2 · Workflow patterns
 

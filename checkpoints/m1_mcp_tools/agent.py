@@ -2,7 +2,9 @@
 
 Prereq: the three tool servers deployed with `gcloud run deploy`, then `make check-mcp`
         (saves their URLs into .env).
-Run:    adk web --host 0.0.0.0 --port 8080 checkpoints   (then pick m1_mcp_tools)
+Run:    adk web --port 8080 --allow_origins "*" checkpoints
+        then Web Preview -> port 8080, pick m1_mcp_tools. --allow_origins is needed in
+        Cloud Shell: Web Preview is a proxy, and adk web rejects other origins (403).
 Ask:    "Where is my order ORD-1002 and is the oak chair in stock?"
 
 This is the baseline the rest of the workshop improves on: one agent holding
