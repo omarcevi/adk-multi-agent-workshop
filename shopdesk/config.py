@@ -55,8 +55,10 @@ A2A_AGENT_CARDS = [u.strip() for u in os.getenv("A2A_AGENT_CARDS", "").split(","
 A2A_TIMEOUT_S = float(os.getenv("A2A_TIMEOUT_S", "120"))
 
 # --- Guardrails (enforced by plugins, not prompts) ------------------------------
-MAX_TOOL_CALLS_PER_TURN = int(os.getenv("MAX_TOOL_CALLS_PER_TURN", "12"))
-MAX_LLM_CALLS_PER_TURN = int(os.getenv("MAX_LLM_CALLS_PER_TURN", "20"))
+# A normal turn uses ~12 tool and ~15 LLM calls across all agents (more with the
+# bonus policy search); hitting the tool budget also blocks exit_loop.
+MAX_TOOL_CALLS_PER_TURN = int(os.getenv("MAX_TOOL_CALLS_PER_TURN", "25"))
+MAX_LLM_CALLS_PER_TURN = int(os.getenv("MAX_LLM_CALLS_PER_TURN", "30"))
 AUTO_REFUND_LIMIT = float(os.getenv("AUTO_REFUND_LIMIT", "150"))
 
 # --- Telemetry --------------------------------------------------------------------
