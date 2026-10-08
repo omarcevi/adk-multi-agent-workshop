@@ -43,7 +43,8 @@ def build_a2a_agent():
     card = create_agent_card(
         agent_name="refunds_specialist",
         # TRY THIS (Module 3): the orchestrator routes on this text. Make it vague
-        # ("helps customers") and watch routing get worse.
+        # ("helps customers"), redeploy (python deploy/refunds.py), restart adk web,
+        # and watch routing get worse.
         description=(
             "Refunds specialist. Checks refund eligibility for an order and issues "
             "refunds (full or partial) for damaged, late or unwanted items."

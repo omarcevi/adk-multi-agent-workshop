@@ -33,7 +33,8 @@ from shopdesk import config
 from shopdesk.agents import gemini
 from shopdesk.tools import mcp_toolset
 
-# TRY THIS (Module 2): set MAX_ROUNDS = 1 and compare the reply with the 3-round version.
+# TRY THIS (Module 2): set MAX_ROUNDS = 1, restart adk web, and compare the reply with
+# the 3-round version.
 MAX_ROUNDS = 3
 
 
@@ -106,7 +107,7 @@ def build_research() -> ParallelAgent:
 
 # --- 3. Loop: draft -> review until the reviewer approves (or 3 rounds) ------------
 # TRY THIS (Module 2): add a rule, e.g. "Always address the customer by first name",
-# and watch the reviewer send drafts back until they comply.
+# restart adk web, and watch the reviewer send drafts back until they comply.
 POLICY = """\
 - Never promise a refund or compensation; refunds are decided by the refunds team.
 - Never invent dates, prices or tracking numbers that are not in the facts.
