@@ -1,6 +1,6 @@
 """MODULE 6 — send the test scenarios to the deployed ShopDesk app.
 
-    make bench          # every scenario x 2, against Agent Runtime
+    make bench          # every scenario once, against Agent Runtime (--runs 2 for more data)
     make report         # a few minutes later: numbers from Cloud Logging
 
 Each turn is measured inside the app by MetricsPlugin (shopdesk/plugins/telemetry.py),

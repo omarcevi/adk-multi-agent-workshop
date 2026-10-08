@@ -31,8 +31,8 @@ status:          ## what is deployed in your project right now
 query:           ## talk to the deployed app: make query MSG="..."
 	@$(PY) deploy/query.py "$(MSG)" --user $(USER_ID)
 
-bench:           ## send the test scenarios to the deployed app
-	@$(PY) bench/run_bench.py --runs 2
+bench:           ## send the test scenarios to the deployed app (once; --runs 2 at home)
+	@$(PY) bench/run_bench.py --runs 1
 
 report:          ## latency, delegation success, tokens per agent (from Cloud Logging)
 	@$(PY) bench/report.py --cloud-logging --hours 3

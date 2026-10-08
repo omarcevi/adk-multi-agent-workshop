@@ -120,11 +120,12 @@ make query MSG="Please refund 20 EUR for the cracked kettle lid on ORD-1001"
 ## Module 6 · Telemetry
 
 ```bash
-make bench          # 5 scenarios x 2 against your deployed app
+make bench          # the 5 scenarios once against your deployed app (~2 min)
 make report         # a minute later: latency, A2A latency, delegation success, tokens per agent
 ```
 
 Then open Cloud Trace in the console for the same requests as span trees.
+At home, `python bench/run_bench.py --runs 2` gives the report more data.
 
 ## When you're done
 
