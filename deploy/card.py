@@ -17,4 +17,4 @@ for url in config.A2A_AGENT_CARDS:
     card = httpx.get(url, auth=GoogleAccessTokenAuth(), timeout=30).raise_for_status().json()
     print(f"Card URL: {url}\n")
     print(json.dumps({k: card.get(k) for k in ("name", "description", "skills", "supportedInterfaces")}, indent=2))
-print("\nThe URL is already in .env (A2A_AGENT_CARDS). Restart `make web` to pick it up.")
+print("\nThe URL is already in .env (A2A_AGENT_CARDS). Restart `adk web` to pick it up.")

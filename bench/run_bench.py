@@ -22,22 +22,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from scripts.envfile import get_value  # noqa: E402
-from shopdesk import config  # noqa: E402
+from scripts.runtimes import find_app_runtime  # noqa: E402
 
 SCENARIOS = json.loads((ROOT / "bench" / "scenarios.json").read_text())
 
 
 async def run_deployed(runs: int, out: Path):
-    import agentplatform
-
-    rid = get_value("APP_RUNTIME_ID")
-    if not rid:
-        raise SystemExit("App not deployed yet -> make status")
-    name = f"projects/{config.PROJECT}/locations/{config.REGION}/reasoningEngines/{rid}"
-    # Keep the client referenced: when it's garbage-collected it closes the async session.
-    client = agentplatform.Client(project=config.PROJECT, location=config.REGION)
-    app = client.runtimes.get(name=name)
+    # Keep `client` referenced: when it's garbage-collected it closes the async session.
+    client, app = find_app_runtime()
     with out.open("a", encoding="utf-8") as f:
         for r in range(runs):
             for sc in SCENARIOS:
@@ -51,7 +43,7 @@ async def run_deployed(runs: int, out: Path):
                 f.write(json.dumps({"scenario": sc["id"], "run": r, "session_id": session["id"],
                                     "expect_route": sc["expect_route"], "client_ms": round(ms)}) + "\n")
                 print(f"run {r} {sc['id']:<13} {ms:7.0f} ms  agents: {' > '.join(dict.fromkeys(a for a in authors if a))}")
-    print(f"\nSent. Cloud Logging needs a minute or two; then: make report")
+    print("\nSent. Cloud Logging needs a minute or two; then: make report")
 
 
 async def run_local(runs: int, out: Path):

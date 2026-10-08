@@ -48,4 +48,6 @@ gcloud beta services identity create --service=aiplatform.googleapis.com --quiet
 bash scripts/grant_runtime_roles.sh || echo "  (Agent Runtime identity not created yet; roles are granted again after the first deploy)"
 ok "permissions set"
 
-echo; echo "Setup done. Check anything odd with: make doctor"
+"$PY" scripts/envfile.py sync
+echo; echo "Setup done. Next, in every Cloud Shell tab you use:  source env.sh"
+echo "Check anything odd with: make doctor"

@@ -8,20 +8,12 @@ Prints each event with the agent that produced it, so you can see the routing.
 import argparse
 import asyncio
 
-from shopdesk import config
-from scripts.envfile import get_value
+from scripts.runtimes import find_app_runtime
 
 
 async def main(message: str, user_id: str, session_id: str | None):
-    import agentplatform
-
-    rid = get_value("APP_RUNTIME_ID")
-    if not rid:
-        raise SystemExit("App not deployed yet -> make status")
-    name = f"projects/{config.PROJECT}/locations/{config.REGION}/reasoningEngines/{rid}"
-    # Keep the client referenced: when it's garbage-collected it closes the async session.
-    client = agentplatform.Client(project=config.PROJECT, location=config.REGION)
-    app = client.runtimes.get(name=name)
+    # Keep `client` referenced: when it's garbage-collected it closes the async session.
+    client, app = find_app_runtime()
     if not session_id:
         session = await app.async_create_session(user_id=user_id)
         session_id = session["id"]

@@ -17,10 +17,10 @@ done
 
 step "Deployments"
 for v in ORDERS_MCP_URL INVENTORY_MCP_URL SHIPPING_MCP_URL; do
-  [ -n "${!v:-}" ] && ok "$v set" || echo "  - $v not set yet (make deploy-mcp)"
+  [ -n "${!v:-}" ] && ok "$v set" || echo "  - $v not set yet (Module 1: gcloud run deploy, then make check-mcp)"
 done
-[ -n "${REFUNDS_RUNTIME_ID:-}" ] && ok "refunds specialist $REFUNDS_RUNTIME_ID" || echo "  - refunds specialist not deployed yet (make deploy-refunds)"
-[ -n "${APP_RUNTIME_ID:-}" ] && ok "app $APP_RUNTIME_ID" || echo "  - app not deployed yet (make deploy-app)"
+[ -n "${REFUNDS_RUNTIME_ID:-}" ] && ok "refunds specialist $REFUNDS_RUNTIME_ID" || echo "  - refunds specialist not deployed yet (Module 2: python deploy/refunds.py)"
+[ -n "${APP_RUNTIME_ID:-}" ] && ok "app $APP_RUNTIME_ID" || echo "  - app not deployed yet, or not queried yet (Module 3: adk deploy agent_engine; make status)"
 if [ -n "${REFUNDS_RUNTIME_ID:-}${APP_RUNTIME_ID:-}" ]; then
   SA=$(runtime_sa)
   ROLES=$(gcloud projects get-iam-policy "$GOOGLE_CLOUD_PROJECT" --flatten='bindings[].members' \

@@ -1,7 +1,11 @@
-"""make deploy-refunds — the refunds specialist -> Agent Runtime, as an A2A agent.
+"""python deploy/refunds.py — the refunds specialist -> Agent Runtime, as an A2A agent.
 
-Runs in the background (5-10 min: the platform builds a container). When it
-finishes it saves REFUNDS_RUNTIME_ID and the agent-card URL to .env.
+Why not `adk deploy`? `adk deploy agent_engine` publishes an ADK app (sessions,
+queries). An A2A agent on Agent Runtime is built from the platform's A2aAgent
+template instead (shopdesk/a2a_service.py), so this one deploy is a short script.
+
+Takes 5-10 min (the platform builds a container). When it finishes it saves
+REFUNDS_RUNTIME_ID and the agent-card URL to .env.
 """
 
 import os
@@ -37,7 +41,7 @@ def main():
     from shopdesk.a2a_service import build_a2a_agent
 
     if not config.MCP_URLS["orders"]:
-        sys.exit("Deploy the tool servers first: make deploy-mcp")
+        sys.exit("Deploy the tool servers first (Module 1), then run make check-mcp")
     bucket = get_value("STAGING_BUCKET")
     if not bucket:
         sys.exit("No STAGING_BUCKET in .env -> make setup")

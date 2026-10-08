@@ -1,7 +1,8 @@
 """CHECKPOINT 1 — one agent, three MCP tool servers on Cloud Run.
 
-Prereq: `make deploy-mcp` (writes the three server URLs into .env).
-Run:    `make web`, pick m1_mcp_tools.
+Prereq: the three tool servers deployed with `gcloud run deploy`, then `make check-mcp`
+        (saves their URLs into .env).
+Run:    adk web --host 0.0.0.0 --port 8080 checkpoints   (then pick m1_mcp_tools)
 Ask:    "Where is my order ORD-1002 and is the oak chair in stock?"
 
 This is the baseline the rest of the workshop improves on: one agent holding

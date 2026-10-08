@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShopDesk · chat + trace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f7f5; --surface: #fff; --text: #18181b; --muted: #5f6168; --faint: #9a9ca3; --border: #e4e4e7;
+    --accent: #2a5bd7; --accent-soft: #e6ecfb; --ok: #15803d; --bad: #b91c1c;
+    --sans: 'Geist', ui-sans-serif, system-ui, sans-serif; --mono: 'Geist Mono', ui-monospace, Menlo, monospace;
+    /* the trace panel is dark in both themes, like the panels on omarcevi.dev */
+    --p-bg: #0f1115; --p-line: #232830; --p-line2: #1c2027; --p-text: #e5e7eb; --p-muted: #8b919c; --p-faint: #5c626d;
+    --c-llm: #7aa2ff; --c-group: #3a4252; --c-remote: #f59e0b; --c-tool: #4ade80; --c-err: #ef4444;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #111318; --surface: #171a20; --text: #e8e9ec; --muted: #a0a4ad; --faint: #6b7079; --border: #262a31;
+            --accent: #7aa2ff; --accent-soft: #1d2740; --ok: #4ade80; --bad: #f87171; --p-bg: #0c0e12; --p-line: #22262e; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.55; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
+           padding: .8rem 1.25rem; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: .78rem; color: var(--muted); }
+  header b { color: var(--text); font-weight: 500; }
+  .mode { padding: .15rem .5rem; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+  .grid { display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); height: calc(100vh - 49px); }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; height: auto; } .chat { height: 70vh; } }
+
+  /* ---- chat ---- */
+  .chat { display: flex; flex-direction: column; border-right: 1px solid var(--border); min-height: 0; }
+  .controls { display: flex; gap: .5rem; align-items: center; padding: .7rem 1rem; border-bottom: 1px solid var(--border);
+              font-family: var(--mono); font-size: .75rem; color: var(--muted); }
+  select, button { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: .3rem .55rem; cursor: pointer; }
+  button:hover { border-color: var(--accent); color: var(--accent); }
+  .msgs { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: .7rem; }
+  .msg { max-width: 92%; padding: .6rem .8rem; border-radius: 12px; white-space: pre-wrap; word-wrap: break-word; }
+  .msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+  .msg.bot { align-self: flex-start; background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .msg .who { display: block; font-family: var(--mono); font-size: .68rem; color: var(--faint); margin-bottom: .2rem; }
+  .msg.err { border-color: var(--bad); color: var(--bad); }
+  .msg.pending { color: var(--muted); font-family: var(--mono); font-size: .8rem; }
+  .samples { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0 1rem .6rem; }
+  .samples button { font-size: .74rem; font-family: var(--sans); border-radius: 99px; text-align: left; }
+  form { display: flex; gap: .5rem; padding: .8rem 1rem; border-top: 1px solid var(--border); }
+  textarea { flex: 1; font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+             padding: .55rem .7rem; resize: none; height: 2.6rem; }
+  textarea:focus { outline: 2px solid rgba(122,162,255,.35); border-color: var(--accent); }
+  form button { background: var(--accent); color: #fff; border-color: var(--accent); padding: 0 1rem; }
+  form button:hover { color: #fff; filter: brightness(1.08); }
+
+  /* ---- trace ---- */
+  .trace { background: var(--p-bg); color: var(--p-text); display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+  .t-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+            padding: .8rem 1.1rem; border-bottom: 1px solid var(--p-line); font-family: var(--mono); font-size: .76rem; color: var(--p-muted); }
+  .t-head b { color: var(--p-text); font-weight: 500; }
+  .chips { display: flex; gap: .45rem; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--p-line); border-radius: 99px; padding: .1rem .55rem; }
+  .chip i { font-style: normal; color: var(--p-text); }
+  .t-body { flex: 1; overflow: auto; padding: .9rem 1.1rem 1.4rem; }
+  .empty { color: var(--p-muted); font-size: .9rem; max-width: 36em; padding: 2rem 0; }
+  .empty b { color: var(--p-text); font-weight: 500; }
+  .tl { display: grid; grid-template-columns: 13rem minmax(240px, 1fr) 4.5rem; row-gap: 3px; font-family: var(--mono); font-size: .74rem; }
+  .tl .lab { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: .28rem .5rem .28rem 0; color: var(--p-text); }
+  .tl .lab small { color: var(--p-faint); margin-left: .35rem; }
+  .tl .lab.group { color: var(--p-muted); }
+  .tl .tok { text-align: right; color: var(--p-muted); padding: .28rem 0; }
+  .track { position: relative; border-left: 1px solid var(--p-line); background:
+           repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), var(--p-line2) calc(25% - 1px) 25%); }
+  .seg { position: absolute; top: 5px; height: calc(100% - 10px); border-radius: 4px; background: var(--c-llm); opacity: .9; min-width: 3px; }
+  .seg.group { background: transparent; border: 1px solid var(--c-group); opacity: 1; }
+  .seg.remote { background: repeating-linear-gradient(45deg, var(--c-remote) 0 6px, #d97706 6px 12px); }
+  .seg.live { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .55; } }
+  .mark { position: absolute; top: 2px; width: 2px; height: calc(100% - 4px); background: var(--c-tool); border-radius: 1px; }
+  .mark.err { background: var(--c-err); width: 3px; }
+  .axis { grid-column: 2; display: flex; justify-content: space-between; color: var(--p-faint); font-size: .68rem; padding-top: .3rem; }
+  .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .9rem; color: var(--p-muted); font-family: var(--mono); font-size: .7rem; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: .35rem; vertical-align: -1px; background: var(--c); }
+  details.log { margin-top: 1.2rem; border-top: 1px solid var(--p-line); padding-top: .8rem; }
+  details.log summary { cursor: pointer; color: var(--p-muted); font-family: var(--mono); font-size: .75rem; }
+  .ev { display: grid; grid-template-columns: 4.2rem 11rem 1fr; gap: .6rem; padding: .3rem 0; border-bottom: 1px dashed var(--p-line);
+        font-family: var(--mono); font-size: .72rem; }
+  .ev .t { color: var(--p-faint); } .ev .a { color: var(--c-llm); } .ev .a.remote { color: var(--c-remote); }
+  .ev .d { color: var(--p-text); word-break: break-word; } .ev .d em { color: var(--c-tool); font-style: normal; }
+  .note { margin-top: .8rem; color: var(--p-muted); font-size: .8rem; border-left: 2px solid var(--c-remote); padding-left: .7rem; }
+</style>
+</head>
+<body>
+<header>
+  <span><b>ShopDesk</b> · chat + trace</span>
+  <span id="where">connecting…</span>
+</header>
+
+<div class="grid">
+  <section class="chat" aria-label="Chat">
+    <div class="controls">
+      <label>customer <select id="user"><option value="C-42">C-42 · Elif</option><option value="C-77">C-77 · Mert</option></select></label>
+      <button id="newSession" type="button" title="Start a new conversation (memory carries over)">new session</button>
+      <span id="sid" style="margin-left:auto"></span>
+    </div>
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <div class="samples" id="samples"></div>
+    <form id="form">
+      <textarea id="input" placeholder="Ask ShopDesk something…" aria-label="Message"></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <section class="trace" aria-label="Trace of the last message">
+    <div class="t-head">
+      <span><b>Trace</b> · last message</span>
+      <span class="chips" id="chips"></span>
+    </div>
+    <div class="t-body" id="tbody">
+      <p class="empty">Send a message and watch it move through the system: <b>which agent ran when</b>, the
+        <b>parallel</b> researchers side by side, <b>loop</b> rounds, tool calls, the <b>A2A hop</b> to the refunds
+        agent, and <b>tokens per agent</b>.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const SAMPLES = [
+    "Where is my order ORD-1002 and is the oak chair in stock?",
+    "The kettle lid from ORD-1001 arrived cracked. Can I get a new one?",
+    "Please refund 20 EUR for the cracked kettle lid on ORD-1001.",
+    "I want a full refund for my desk, order ORD-1004.",
+  ];
+  let tree = [], sessionId = null, busy = false;
+
+  // ---------- setup ----------
+  fetch('api/info').then(r => r.json()).then(info => {
+    tree = info.tree;
+    $('where').innerHTML = `<span class="mode">${info.mode === 'local' ? 'local App in Cloud Shell' : 'Agent Runtime'}</span> ${info.project} · ${info.region}`;
+  }).catch(() => { $('where').textContent = 'server not reachable'; });
+  SAMPLES.forEach(s => { const b = document.createElement('button'); b.type = 'button'; b.textContent = s;
+    b.onclick = () => { $('input').value = s; $('input').focus(); }; $('samples').appendChild(b); });
+  $('newSession').onclick = () => { sessionId = null; $('sid').textContent = ''; addMsg('bot', 'New session. Long-term memory still carries over.', 'system'); };
+  $('user').onchange = () => $('newSession').click();
+  $('input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('form').requestSubmit(); } });
+
+  function addMsg(cls, text, who) {
+    const d = document.createElement('div'); d.className = 'msg ' + cls;
+    if (who) { const w = document.createElement('span'); w.className = 'who'; w.textContent = who; d.appendChild(w); }
+    d.appendChild(document.createTextNode(text)); $('msgs').appendChild(d); $('msgs').scrollTop = 1e9; return d;
+  }
+
+  // ---------- trace model ----------
+  // rows: name -> {name, kind, parent, depth, segs:[{start,end}], marks:[], tokens}
+  function newTurn() {
+    const rows = new Map();
+    tree.forEach(n => rows.set(n.name, { ...n, segs: [], marks: [], tokens: 0, order: rows.size }));
+    return { rows, events: [], end: 0, done: false, tools: 0, llm: 0, tokens: 0 };
+  }
+  const parallelParent = (rows, name) => { const r = rows.get(name); const p = r && rows.get(r.parent); return p && p.kind === 'parallel' ? p.name : null; };
+
+  function addEvent(turn, e) {
+    const { rows } = turn;
+    if (!e.author || e.author === 'user') return;
+    if (!rows.has(e.author)) rows.set(e.author, { name: e.author, kind: 'remote', parent: tree[0]?.name, depth: 1,
+                                                   segs: [], marks: [], tokens: 0, order: rows.size });
+    const row = rows.get(e.author);
+    // When did this agent start? At the last event from anyone except its parallel siblings.
+    const pp = parallelParent(rows, e.author);
+    let prev = null;
+    for (let i = turn.events.length - 1; i >= 0; i--) {
+      const ev = turn.events[i];
+      if (pp && ev.author !== e.author && parallelParent(rows, ev.author) === pp) continue;
+      prev = ev; break;
+    }
+    const open = row.segs[row.segs.length - 1];
+    if (open && prev && prev.author === e.author) open.end = e.t;
+    else row.segs.push({ start: prev ? prev.t : 0, end: e.t });
+    e.parts.forEach(p => { if (p.kind === 'call') { row.marks.push({ t: e.t, label: p.name }); turn.tools++; } });
+    if (e.error) row.marks.push({ t: e.t, err: true, label: e.error });
+    if (e.tokens) { row.tokens += e.tokens; turn.tokens += e.tokens; turn.llm++; }
+    turn.events.push(e); turn.end = Math.max(turn.end, e.t);
+  }
+
+  function groupSpan(rows, name) {   // a workflow agent spans its descendants
+    let s = Infinity, en = -Infinity;
+    rows.forEach(r => {
+      let p = r.parent;
+      while (p) { if (p === name) { r.segs.forEach(g => { s = Math.min(s, g.start); en = Math.max(en, g.end); }); break; } p = rows.get(p)?.parent; }
+    });
+    return s === Infinity ? null : { start: s, end: en };
+  }
+
+  const fmt = ms => ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(ms < 10000 ? 2 : 1)} s`;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function render(turn, elapsed) {
+    const total = Math.max(turn.end, elapsed || 0, 1);
+    const pct = t => (100 * t / total).toFixed(2) + '%';
+    const remote = [...turn.rows.values()].filter(r => r.kind === 'remote');
+    let html = '<div class="tl">';
+    [...turn.rows.values()].sort((a, b) => a.order - b.order).forEach(r => {
+      const isGroup = ['sequential', 'parallel', 'loop'].includes(r.kind);
+      const segs = isGroup ? [groupSpan(turn.rows, r.name)].filter(Boolean) : r.segs;
+      if (!segs.length && !isGroup) return;              // agents that didn't run this turn
+      if (isGroup && !segs.length) return;
+      const tag = { sequential: 'sequential', parallel: 'parallel', loop: 'loop', remote: 'A2A · remote' }[r.kind] || '';
+      html += `<div class="lab ${isGroup ? 'group' : ''}" style="padding-left:${r.depth * 0.9}rem" title="${esc(r.name)}">${esc(r.name)}${tag ? `<small>${tag}</small>` : ''}</div>`;
+      html += '<div class="track">';
+      segs.forEach((g, i) => {
+        const live = !turn.done && i === segs.length - 1 && !isGroup && g.end === turn.end;
+        html += `<div class="seg ${isGroup ? 'group' : ''} ${r.kind === 'remote' ? 'remote' : ''} ${live ? 'live' : ''}" style="left:${pct(g.start)};width:calc(${pct(g.end - g.start)} + 3px)" title="${esc(r.name)}: ${fmt(g.end - g.start)}"></div>`;
+      });
+      r.marks.forEach(m => { html += `<div class="mark ${m.err ? 'err' : ''}" style="left:${pct(m.t)}" title="${esc(m.label)} @ ${fmt(m.t)}"></div>`; });
+      html += `</div><div class="tok">${r.tokens ? r.tokens.toLocaleString() + ' tok' : (r.kind === 'remote' ? 'hidden' : '')}</div>`;
+    });
+    html += `<div></div><div class="axis"><span>0</span><span>${fmt(Math.round(total / 2))}</span><span>${fmt(total)}</span></div><div></div></div>`;
+    html += `<div class="legend"><span style="--c:var(--c-llm)">agent working</span><span style="--c:var(--c-tool)">tool call</span><span style="--c:var(--c-remote)">A2A remote agent</span><span style="--c:var(--c-group)">workflow span</span></div>`;
+    if (remote.some(r => r.segs.length)) html += `<p class="note">The refunds agent runs on its own Agent Runtime. Over A2A you only see its answer: its tool calls and tokens stay inside it. Open Cloud Trace to see inside.</p>`;
+    html += `<details class="log"><summary>${turn.events.length} events</summary>`;
+    turn.events.forEach(e => {
+      const r = turn.rows.get(e.author);
+      const d = e.parts.map(p => p.kind === 'call' ? `<em>→ ${esc(p.name)}</em>(${esc(p.args)})`
+                                  : p.kind === 'result' ? `<em>← ${esc(p.name)}</em> ${esc(p.result)}` : esc(p.text)).join('<br>')
+              + (e.transfer ? `<em>transfer → ${esc(e.transfer)}</em>` : '') + (e.escalate ? ' <em>exit loop</em>' : '') + (e.error ? ` <span style="color:var(--c-err)">${esc(e.error)}</span>` : '');
+      html += `<div class="ev"><span class="t">+${fmt(e.t)}</span><span class="a ${r && r.kind === 'remote' ? 'remote' : ''}">${esc(e.author)}</span><span class="d">${d}</span></div>`;
+    });
+    html += '</details>';
+    $('tbody').innerHTML = html;
+    const agents = [...turn.rows.values()].filter(r => r.segs.length).length;
+    $('chips').innerHTML = [['time', fmt(total)], ['agents', agents], ['LLM calls', turn.llm], ['tool calls', turn.tools], ['tokens', turn.tokens.toLocaleString()]]
+      .map(([k, v]) => `<span class="chip">${k} <i>${v}</i></span>`).join('');
+  }
+
+  // ---------- send ----------
+  $('form').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const text = $('input').value.trim();
+    if (!text || busy) return;
+    busy = true; $('input').value = '';
+    addMsg('user', text);
+    const pending = addMsg('bot pending', 'thinking…');
+    const turn = newTurn(); const t0 = performance.now();
+    const tick = setInterval(() => render(turn, Math.round(performance.now() - t0)), 250);
+    let lastText = null;
+    try {
+      const res = await fetch('api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, user_id: $('user').value, session_id: sessionId }) });
+      const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '';
+      for (;;) {
+        const { value, done } = await reader.read(); if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let nl; while ((nl = buf.indexOf('\n')) >= 0) {
+          const line = buf.slice(0, nl); buf = buf.slice(nl + 1); if (!line.trim()) continue;
+          const msg = JSON.parse(line);
+          if (msg.type === 'session') { sessionId = msg.session_id; $('sid').textContent = 'session ' + sessionId.slice(-6); }
+          else if (msg.type === 'event') {
+            addEvent(turn, msg);
+            const t = msg.parts.filter(p => p.kind === 'text').map(p => p.text).join('\n');
+            if (t) { lastText = { text: t, who: msg.author }; pending.lastChild.textContent = `${msg.author} is working…`; }
+          } else if (msg.type === 'error') { addMsg('bot err', msg.message, 'error'); }
+          else if (msg.type === 'done') { turn.end = Math.max(turn.end, msg.ms); }
+        }
+      }
+    } catch (e) { addMsg('bot err', String(e), 'error'); }
+    clearInterval(tick); turn.done = true; render(turn);
+    pending.remove();
+    if (lastText) addMsg('bot', lastText.text, lastText.who);
+    busy = false;
+  });
+})();
+</script>
+</body>
+</html>

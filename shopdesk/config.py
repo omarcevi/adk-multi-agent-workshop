@@ -36,7 +36,7 @@ MODEL = os.getenv("WORKSHOP_MODEL", "gemini-3.5-flash")
 # The three parallel researchers use FAST_MODEL: the Module 6 lever for cost.
 FAST_MODEL = os.getenv("WORKSHOP_FAST_MODEL", MODEL)
 
-# --- MCP tool servers (Cloud Run URLs, written to .env by `make deploy-mcp`) -----
+# --- MCP tool servers (Cloud Run URLs, saved to .env by `make check-mcp`) -----
 MCP_URLS = {
     "orders": os.getenv("ORDERS_MCP_URL", ""),
     "inventory": os.getenv("INVENTORY_MCP_URL", ""),

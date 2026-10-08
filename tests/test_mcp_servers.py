@@ -138,8 +138,24 @@ def test_envfile_set_and_get(tmp_path, monkeypatch):
     from scripts import envfile
 
     monkeypatch.setattr(envfile, "ENV", tmp_path / ".env")
+    monkeypatch.setattr(envfile, "AGENT_ENV", tmp_path / "agent.env")
     envfile.set_value("A", "1")
     envfile.set_value("B", "x=y")
     envfile.set_value("A", "2")
     assert envfile.get_value("A") == "2" and envfile.get_value("B") == "x=y"
     assert (tmp_path / ".env").read_text().count("A=") == 1
+
+
+def test_agent_env_sync_skips_empty_and_region(tmp_path, monkeypatch):
+    """adk deploy reads the agent folder's .env: only deploy keys, never empty values
+    (Agent Runtime rejects them), never GOOGLE_CLOUD_LOCATION (it would set the region)."""
+    from scripts import envfile
+
+    monkeypatch.setattr(envfile, "ENV", tmp_path / ".env")
+    monkeypatch.setattr(envfile, "AGENT_ENV", tmp_path / "agent.env")
+    (tmp_path / ".env").write_text("GOOGLE_CLOUD_LOCATION=global\nPOLICY_MCP_URL=\nWORKSHOP_MODEL=gemini-3.5-flash\n")
+    envfile.set_value("ORDERS_MCP_URL", "https://o.run.app/mcp")
+    agent = (tmp_path / "agent.env").read_text()
+    assert "ORDERS_MCP_URL=https://o.run.app/mcp" in agent and "MODEL_LOCATION=global" in agent
+    assert "WORKSHOP_MODEL=gemini-3.5-flash" in agent
+    assert "POLICY_MCP_URL" not in agent and "GOOGLE_CLOUD_LOCATION" not in agent

@@ -19,4 +19,4 @@ ok "policy server -> $URL/mcp"
 
 step "3/3 Done"
 echo "The policy reviewer now calls search_policy (shopdesk/agents/workflows.py, build_review_loop)."
-echo "Try it: make web -> m2_workflows. Ship it: make deploy-app."
+echo "Try it: restart adk web -> m2_workflows. Ship it: run the Module 3 adk deploy command again with --agent_engine_id \$APP_RUNTIME_ID."

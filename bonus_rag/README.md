@@ -14,9 +14,9 @@ policy reviewer --MCP--> shopdesk-policy-mcp (Cloud Run) --> RAG Engine corpus
 ## Run it
 
 ```bash
-make bonus-rag
-make web          # pick m2_workflows, ask about the cracked kettle lid on ORD-1001
-make deploy-app   # ship the grounded reviewer to Agent Runtime
+make bonus-rag    # corpus + policy MCP server on Cloud Run, URL saved into .env
+# restart adk web, pick m2_workflows, ask about the cracked kettle lid on ORD-1001
+# ship it: the Module 3 `adk deploy agent_engine ...` command plus --agent_engine_id $APP_RUNTIME_ID
 ```
 
 `make bonus-rag` creates the corpus, deploys the policy server to Cloud Run and

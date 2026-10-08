@@ -1,7 +1,9 @@
 """CHECKPOINT 4 — the full App: orchestrator + plugins + memory.
-This is exactly what `make deploy-app` ships to Agent Runtime.
+This is exactly what `adk deploy agent_engine ... checkpoints/m4_production`
+ships to Agent Runtime (its settings come from this folder's .env, which
+scripts/envfile.py keeps in sync with the repo's .env).
 
-Run: `make web`, pick m4_production.
+Run: adk web ... checkpoints, pick m4_production.
 Try: the guardrail challenge (shopdesk/plugins/guardrails.py), a card number in
      your message, and "Please always contact me by SMS" then a new session.
 
