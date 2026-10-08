@@ -1,0 +1,10 @@
+.env
+checkpoints/m4_production/.env
+.venv/
+.logs/
+__pycache__/
+*.egg-info/
+.adk/
+bench/metrics*.jsonl
+bench/runs.jsonl
+/*_tmp*/

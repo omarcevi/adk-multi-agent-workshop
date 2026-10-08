@@ -1,0 +1,11 @@
+# Only the tool servers go to Cloud Build.
+.git
+.venv
+.env
+.logs
+checkpoints/
+deploy/
+bench/
+bonus_rag/
+tests/
+**/__pycache__

@@ -1,0 +1,12 @@
+{
+  "C-42": {
+    "name": "Elif",
+    "tier": "gold",
+    "preferred_channel": "email"
+  },
+  "C-77": {
+    "name": "Mert",
+    "tier": "standard",
+    "preferred_channel": "sms"
+  }
+}

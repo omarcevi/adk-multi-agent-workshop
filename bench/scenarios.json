@@ -1,0 +1,7 @@
+[
+  {"id": "wismo",        "user": "C-42", "message": "Hi, where is my order ORD-1002? When will it arrive?",        "expect_route": "support_pipeline"},
+  {"id": "damaged",      "user": "C-42", "message": "The kettle lid from order ORD-1001 arrived cracked. Can I get a new one?", "expect_route": "support_pipeline"},
+  {"id": "backorder",    "user": "C-77", "message": "ORD-1003 still hasn't shipped. Is the lamp in stock?",       "expect_route": "support_pipeline"},
+  {"id": "small_refund", "user": "C-42", "message": "Please refund 20 EUR for the cracked kettle lid on ORD-1001.", "expect_route": "refunds_specialist"},
+  {"id": "big_refund",   "user": "C-77", "message": "I want a full refund for my desk, order ORD-1004.",         "expect_route": "refunds_specialist"}
+]

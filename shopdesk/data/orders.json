@@ -1,0 +1,76 @@
+{
+  "ORD-1001": {
+    "customer_id": "C-42",
+    "status": "delivered",
+    "placed_at": "2026-09-28",
+    "total": 89.9,
+    "currency": "EUR",
+    "items": [
+      {
+        "sku": "MUG-BLUE",
+        "name": "Ceramic mug, blue",
+        "qty": 2,
+        "price": 14.95
+      },
+      {
+        "sku": "KTL-STEEL",
+        "name": "Steel kettle",
+        "qty": 1,
+        "price": 60.0
+      }
+    ],
+    "tracking_id": "TRK-7781",
+    "notes": "Customer reported kettle lid arrived cracked."
+  },
+  "ORD-1002": {
+    "customer_id": "C-42",
+    "status": "shipped",
+    "placed_at": "2026-10-04",
+    "total": 249.0,
+    "currency": "EUR",
+    "items": [
+      {
+        "sku": "CHAIR-OAK",
+        "name": "Oak desk chair",
+        "qty": 1,
+        "price": 249.0
+      }
+    ],
+    "tracking_id": "TRK-7790",
+    "notes": ""
+  },
+  "ORD-1003": {
+    "customer_id": "C-77",
+    "status": "processing",
+    "placed_at": "2026-10-06",
+    "total": 34.5,
+    "currency": "EUR",
+    "items": [
+      {
+        "sku": "LAMP-MINI",
+        "name": "Mini desk lamp",
+        "qty": 1,
+        "price": 34.5
+      }
+    ],
+    "tracking_id": null,
+    "notes": "Item backordered."
+  },
+  "ORD-1004": {
+    "customer_id": "C-77",
+    "status": "delivered",
+    "placed_at": "2026-09-15",
+    "total": 420.0,
+    "currency": "EUR",
+    "items": [
+      {
+        "sku": "DESK-WALNUT",
+        "name": "Walnut standing desk",
+        "qty": 1,
+        "price": 420.0
+      }
+    ],
+    "tracking_id": "TRK-7702",
+    "notes": ""
+  }
+}

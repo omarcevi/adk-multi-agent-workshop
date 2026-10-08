@@ -1,0 +1,61 @@
+{
+  "MUG-BLUE": {
+    "name": "Ceramic mug, blue",
+    "stock": 120,
+    "warehouse": "IST-1",
+    "alternatives": [
+      "MUG-GREEN"
+    ]
+  },
+  "MUG-GREEN": {
+    "name": "Ceramic mug, green",
+    "stock": 45,
+    "warehouse": "IST-1",
+    "alternatives": [
+      "MUG-BLUE"
+    ]
+  },
+  "KTL-STEEL": {
+    "name": "Steel kettle",
+    "stock": 8,
+    "warehouse": "IST-2",
+    "alternatives": [
+      "KTL-GLASS"
+    ]
+  },
+  "KTL-GLASS": {
+    "name": "Glass kettle",
+    "stock": 0,
+    "warehouse": "IST-2",
+    "alternatives": [
+      "KTL-STEEL"
+    ]
+  },
+  "CHAIR-OAK": {
+    "name": "Oak desk chair",
+    "stock": 3,
+    "warehouse": "ANK-1",
+    "alternatives": []
+  },
+  "LAMP-MINI": {
+    "name": "Mini desk lamp",
+    "stock": 0,
+    "warehouse": "IST-1",
+    "alternatives": [
+      "LAMP-ARC"
+    ],
+    "restock_eta": "2026-10-14"
+  },
+  "LAMP-ARC": {
+    "name": "Arc floor lamp",
+    "stock": 12,
+    "warehouse": "IST-1",
+    "alternatives": []
+  },
+  "DESK-WALNUT": {
+    "name": "Walnut standing desk",
+    "stock": 2,
+    "warehouse": "ANK-1",
+    "alternatives": []
+  }
+}

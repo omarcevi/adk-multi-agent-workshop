@@ -1,0 +1,23 @@
+{
+  "TRK-7781": {
+    "carrier": "Yurtici",
+    "status": "delivered",
+    "last_scan": "2026-10-01 14:12",
+    "location": "Kadikoy, Istanbul",
+    "eta": null
+  },
+  "TRK-7790": {
+    "carrier": "Aras",
+    "status": "in_transit",
+    "last_scan": "2026-10-07 22:40",
+    "location": "Ankara hub",
+    "eta": "2026-10-09"
+  },
+  "TRK-7702": {
+    "carrier": "MNG",
+    "status": "delivered",
+    "last_scan": "2026-09-19 10:03",
+    "location": "Besiktas, Istanbul",
+    "eta": null
+  }
+}

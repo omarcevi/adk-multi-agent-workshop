@@ -1,0 +1,3 @@
+# Extra packages for the Agent Runtime container (adk deploy adds google-adk and the platform SDK).
+mcp==2.2.0
+python-dotenv>=1.0
