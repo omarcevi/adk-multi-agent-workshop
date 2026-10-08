@@ -25,7 +25,14 @@ REQUIREMENTS = [
 
 
 def main():
+    import logging
+
     import agentplatform
+
+    # Show the SDK's progress lines (LRO, logs URL) in .logs/refunds.log, so `make status`
+    # doesn't sit on its harmless "requirements are missing" warning for the whole build.
+    logging.basicConfig(format="%(message)s")
+    logging.getLogger("agentplatform_genai").setLevel(logging.INFO)
 
     from shopdesk.a2a_service import build_a2a_agent
 

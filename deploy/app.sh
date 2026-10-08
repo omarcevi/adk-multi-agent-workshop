@@ -28,10 +28,11 @@ ENV
 # (plain string, not an array: macOS still ships bash 3.2)
 UPDATE_FLAG=""
 [ -n "${APP_RUNTIME_ID:-}" ] && UPDATE_FLAG="--agent_engine_id=$APP_RUNTIME_ID"
+# --temp_folder: build outside checkpoints/, or a running `make web` lists the copy as an app.
 .venv/bin/adk deploy agent_engine \
   --project "$GOOGLE_CLOUD_PROJECT" --region "$REGION" \
   --display_name shopdesk-app --otel_to_cloud \
-  --extra_packages shopdesk $UPDATE_FLAG \
+  --extra_packages shopdesk $UPDATE_FLAG --temp_folder "$ROOT/.logs/app-build" \
   checkpoints/m4_production 2>&1 | tee .logs/app-deploy-raw.log
 
 ID=$(grep -oE 'reasoningEngines/[0-9]+' .logs/app-deploy-raw.log | tail -1 | cut -d/ -f2)
