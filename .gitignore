@@ -8,3 +8,4 @@ __pycache__/
 bench/metrics*.jsonl
 bench/runs.jsonl
 /*_tmp*/
+.DS_Store

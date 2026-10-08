@@ -19,7 +19,9 @@ async def main(message: str, user_id: str, session_id: str | None):
     if not rid:
         raise SystemExit("App not deployed yet -> make status")
     name = f"projects/{config.PROJECT}/locations/{config.REGION}/reasoningEngines/{rid}"
-    app = agentplatform.Client(project=config.PROJECT, location=config.REGION).runtimes.get(name=name)
+    # Keep the client referenced: when it's garbage-collected it closes the async session.
+    client = agentplatform.Client(project=config.PROJECT, location=config.REGION)
+    app = client.runtimes.get(name=name)
     if not session_id:
         session = await app.async_create_session(user_id=user_id)
         session_id = session["id"]

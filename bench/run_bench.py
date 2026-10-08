@@ -35,7 +35,9 @@ async def run_deployed(runs: int, out: Path):
     if not rid:
         raise SystemExit("App not deployed yet -> make status")
     name = f"projects/{config.PROJECT}/locations/{config.REGION}/reasoningEngines/{rid}"
-    app = agentplatform.Client(project=config.PROJECT, location=config.REGION).runtimes.get(name=name)
+    # Keep the client referenced: when it's garbage-collected it closes the async session.
+    client = agentplatform.Client(project=config.PROJECT, location=config.REGION)
+    app = client.runtimes.get(name=name)
     with out.open("a", encoding="utf-8") as f:
         for r in range(runs):
             for sc in SCENARIOS:

@@ -9,7 +9,9 @@ need_project
 
 # adk deploy reads env vars for the deployment from the agent folder's .env.
 # (GOOGLE_CLOUD_LOCATION is left out on purpose: it would change the region.)
-cat > checkpoints/m4_production/.env <<ENV
+# Agent Runtime rejects empty values, so unset optional ones (POLICY_MCP_URL,
+# A2A_AGENT_CARDS) are dropped by the grep.
+grep -v '=$' > checkpoints/m4_production/.env <<ENV
 MODEL_LOCATION=global
 WORKSHOP_MODEL=${WORKSHOP_MODEL:-gemini-3.5-flash}
 WORKSHOP_FAST_MODEL=${WORKSHOP_FAST_MODEL:-${WORKSHOP_MODEL:-gemini-3.5-flash}}
@@ -23,12 +25,13 @@ MAX_TOOL_CALLS_PER_TURN=${MAX_TOOL_CALLS_PER_TURN:-12}
 MAX_LLM_CALLS_PER_TURN=${MAX_LLM_CALLS_PER_TURN:-20}
 ENV
 
-UPDATE=()
-[ -n "${APP_RUNTIME_ID:-}" ] && UPDATE=(--agent_engine_id "$APP_RUNTIME_ID")
+# (plain string, not an array: macOS still ships bash 3.2)
+UPDATE_FLAG=""
+[ -n "${APP_RUNTIME_ID:-}" ] && UPDATE_FLAG="--agent_engine_id=$APP_RUNTIME_ID"
 .venv/bin/adk deploy agent_engine \
   --project "$GOOGLE_CLOUD_PROJECT" --region "$REGION" \
   --display_name shopdesk-app --otel_to_cloud \
-  --extra_packages shopdesk "${UPDATE[@]}" \
+  --extra_packages shopdesk $UPDATE_FLAG \
   checkpoints/m4_production 2>&1 | tee .logs/app-deploy-raw.log
 
 ID=$(grep -oE 'reasoningEngines/[0-9]+' .logs/app-deploy-raw.log | tail -1 | cut -d/ -f2)
