@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from scripts.runtimes import find_app_runtime  # noqa: E402
+from scripts.runtimes import find_app_runtime, stream_query  # noqa: E402
 
 SCENARIOS = json.loads((ROOT / "bench" / "scenarios.json").read_text())
 
@@ -36,9 +36,12 @@ async def run_deployed(runs: int, out: Path):
                 session = await app.async_create_session(user_id=sc["user"])
                 t0 = time.perf_counter()
                 authors = []
-                async for ev in app.async_stream_query(user_id=sc["user"], session_id=session["id"],
-                                                       message=sc["message"]):
-                    authors.append(ev.get("author"))
+                try:
+                    async for ev in stream_query(app, user_id=sc["user"], session_id=session["id"],
+                                                 message=sc["message"]):
+                        authors.append(ev.get("author"))
+                except TimeoutError:
+                    authors.append("TIMEOUT")  # the stream went quiet; move on to the next scenario
                 ms = (time.perf_counter() - t0) * 1000
                 f.write(json.dumps({"scenario": sc["id"], "run": r, "session_id": session["id"],
                                     "expect_route": sc["expect_route"], "client_ms": round(ms)}) + "\n")

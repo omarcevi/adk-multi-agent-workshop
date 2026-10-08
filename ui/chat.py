@@ -135,7 +135,9 @@ class RuntimeBackend:
         return (await self.runtime.async_create_session(user_id=user_id))["id"]
 
     async def stream(self, user_id: str, session_id: str, message: str):
-        async for ev in self.runtime.async_stream_query(user_id=user_id, session_id=session_id, message=message):
+        from scripts.runtimes import stream_query
+
+        async for ev in stream_query(self.runtime, user_id=user_id, session_id=session_id, message=message):
             yield ev
 
 

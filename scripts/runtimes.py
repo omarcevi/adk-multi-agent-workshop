@@ -6,10 +6,29 @@ to copy the runtime ID: we look it up by display name once and remember it in .e
 
 from __future__ import annotations
 
+import asyncio
+
 from scripts.envfile import get_value, set_value
 from shopdesk import config
 
 APP_DISPLAY_NAME = "shopdesk-app"
+IDLE_TIMEOUT_S = 180
+
+
+async def stream_query(runtime, *, user_id: str, session_id: str, message: str,
+                       idle_s: float = IDLE_TIMEOUT_S):
+    """runtime.async_stream_query, but give up when no event arrives for idle_s seconds.
+    After a long model stall the stream can stay open with nothing left to come."""
+    events = runtime.async_stream_query(user_id=user_id, session_id=session_id, message=message).__aiter__()
+    while True:
+        try:
+            event = await asyncio.wait_for(events.__anext__(), idle_s)
+        except StopAsyncIteration:
+            return
+        except asyncio.TimeoutError:
+            raise TimeoutError(f"no answer from the app for {idle_s:.0f} s; "
+                               "send the message again (a new session helps)") from None
+        yield event
 
 
 def resource_name(runtime_id: str) -> str:

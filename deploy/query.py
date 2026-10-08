@@ -8,7 +8,7 @@ Prints each event with the agent that produced it, so you can see the routing.
 import argparse
 import asyncio
 
-from scripts.runtimes import find_app_runtime
+from scripts.runtimes import find_app_runtime, stream_query
 
 
 async def main(message: str, user_id: str, session_id: str | None):
@@ -18,14 +18,17 @@ async def main(message: str, user_id: str, session_id: str | None):
         session = await app.async_create_session(user_id=user_id)
         session_id = session["id"]
     print(f"(user {user_id}, session {session_id})\n")
-    async for event in app.async_stream_query(user_id=user_id, session_id=session_id, message=message):
-        author = event.get("author", "?")
-        for part in (event.get("content") or {}).get("parts", []):
-            if part.get("text"):
-                print(f"[{author}] {part['text']}")
-            elif part.get("function_call"):
-                fc = part["function_call"]
-                print(f"[{author}] -> {fc['name']}({fc.get('args', {})})")
+    try:
+        async for event in stream_query(app, user_id=user_id, session_id=session_id, message=message):
+            author = event.get("author", "?")
+            for part in (event.get("content") or {}).get("parts", []):
+                if part.get("text"):
+                    print(f"[{author}] {part['text']}")
+                elif part.get("function_call"):
+                    fc = part["function_call"]
+                    print(f"[{author}] -> {fc['name']}({fc.get('args', {})})")
+    except TimeoutError as e:
+        raise SystemExit(f"\n{e}") from None
 
 
 if __name__ == "__main__":

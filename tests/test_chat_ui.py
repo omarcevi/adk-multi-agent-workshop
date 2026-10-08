@@ -62,3 +62,30 @@ def test_chat_stream_end_to_end_local_backend():
     assert sum(e["tokens"] for e in events) > 0
     assert all(e["t"] >= 0 for e in events)
     assert not [m for m in msgs if m["type"] == "error"]
+
+
+def test_stream_query_gives_up_when_the_stream_goes_quiet():
+    from scripts.runtimes import stream_query
+
+    class Runtime:
+        def __init__(self, stall):
+            self.stall = stall
+
+        async def async_stream_query(self, **_):
+            yield {"author": "a"}
+            if self.stall:
+                await asyncio.sleep(60)  # the stream stays open, nothing comes
+            yield {"author": "b"}
+
+    async def collect(runtime):
+        got = []
+        try:
+            async for ev in stream_query(runtime, user_id="u", session_id="s", message="m", idle_s=0.2):
+                got.append(ev["author"])
+        except TimeoutError as e:
+            got.append(f"timeout: {e}")
+        return got
+
+    assert asyncio.run(collect(Runtime(stall=False))) == ["a", "b"]
+    got = asyncio.run(collect(Runtime(stall=True)))
+    assert got[0] == "a" and got[1].startswith("timeout: no answer from the app")
