@@ -34,6 +34,5 @@ reviewer the `search_policy` tool and tells it to look up the policy first.
 
 RAG Engine in `us-central1` needs allowlisting for new projects, so the corpus
 lives in `RAG_REGION` (default `europe-west4`). RAG Engine's managed vector
-database is billed while it exists; check the RAG Engine pricing page and delete
-the corpus when you're done (`make cleanup` removes the Cloud Run service; delete
-the corpus from the console under Vertex AI > RAG Engine).
+database is billed while it exists; check the RAG Engine pricing page and run
+`make cleanup` when you're done: it deletes the corpus and the policy server.
