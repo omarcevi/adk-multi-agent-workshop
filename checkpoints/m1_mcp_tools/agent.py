@@ -11,11 +11,12 @@ every tool and making every decision.
 from google.adk.agents import LlmAgent
 
 from shopdesk import config
+from shopdesk.agents import gemini
 from shopdesk.tools import mcp_toolset
 
 root_agent = LlmAgent(
     name="support_agent",
-    model=config.MODEL,
+    model=gemini(config.MODEL),
     description="Single agent with every tool — our baseline.",
     instruction=(
         "You are a ShopDesk support agent. Use the tools to answer questions about "

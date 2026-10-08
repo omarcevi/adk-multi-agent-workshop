@@ -18,6 +18,7 @@ from google.adk.agents import LlmAgent
 from google.adk.tools import ToolContext
 
 from shopdesk import config
+from shopdesk.agents import gemini
 from shopdesk.mcp_servers._common import load
 from shopdesk.tools import mcp_toolset
 
@@ -62,7 +63,7 @@ def issue_refund(order_id: str, amount: float, reason: str, tool_context: ToolCo
 def build_refunds_agent() -> LlmAgent:
     return LlmAgent(
         name="refunds_specialist",
-        model=config.MODEL,
+        model=gemini(config.MODEL),
         description=(
             "Refunds specialist. Checks refund eligibility for an order and issues "
             "refunds (full or partial) for damaged, late or unwanted items."

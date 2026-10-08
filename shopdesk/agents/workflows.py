@@ -30,6 +30,7 @@ from google.adk.tools import exit_loop
 from pydantic import BaseModel, Field
 
 from shopdesk import config
+from shopdesk.agents import gemini
 from shopdesk.tools import mcp_toolset
 
 # TRY THIS (Module 2): set MAX_ROUNDS = 1 and compare the reply with the 3-round version.
@@ -47,7 +48,7 @@ class Case(BaseModel):
 def build_intake() -> LlmAgent:
     return LlmAgent(
         name="intake",
-        model=config.FAST_MODEL,
+        model=gemini(config.FAST_MODEL),
         description="Classifies the customer request and extracts IDs.",
         instruction=(
             "Read the customer's message and fill the Case schema. "
@@ -62,7 +63,7 @@ def build_intake() -> LlmAgent:
 def build_research() -> ParallelAgent:
     order_researcher = LlmAgent(
         name="order_researcher",
-        model=config.FAST_MODEL,
+        model=gemini(config.FAST_MODEL),
         description="Facts about the order: status, items, totals, notes.",
         instruction=(
             "Case: {case}\n"
@@ -74,7 +75,7 @@ def build_research() -> ParallelAgent:
     )
     stock_researcher = LlmAgent(
         name="stock_researcher",
-        model=config.FAST_MODEL,
+        model=gemini(config.FAST_MODEL),
         description="Stock levels and in-stock alternatives for the ordered items.",
         instruction=(
             "Case: {case}\n"
@@ -86,7 +87,7 @@ def build_research() -> ParallelAgent:
     )
     shipping_researcher = LlmAgent(
         name="shipping_researcher",
-        model=config.FAST_MODEL,
+        model=gemini(config.FAST_MODEL),
         description="Where the parcel is and when it arrives.",
         instruction=(
             "Case: {case}\n"
@@ -116,7 +117,7 @@ POLICY = """\
 def build_review_loop() -> LoopAgent:
     drafter = LlmAgent(
         name="drafter",
-        model=config.MODEL,
+        model=gemini(config.MODEL),
         description="Writes the customer reply.",
         instruction=(
             "Write a reply to the customer.\n"
@@ -132,7 +133,7 @@ def build_review_loop() -> LoopAgent:
     policy_tools = [mcp_toolset("policy")] if config.MCP_URLS.get("policy") else []
     reviewer = LlmAgent(
         name="policy_reviewer",
-        model=config.MODEL,
+        model=gemini(config.MODEL),
         description="Checks the draft against the support policy.",
         instruction=(
             "Check this draft against the policy and the facts.\n"

@@ -22,6 +22,7 @@ from google.adk.agents import LlmAgent
 from google.adk.tools import preload_memory
 
 from shopdesk import config
+from shopdesk.agents import gemini
 from shopdesk.agents.discovery import discover_remote_agents
 from shopdesk.agents.workflows import build_support_pipeline
 
@@ -44,7 +45,7 @@ def build_orchestrator(*, with_memory: bool = False, remote_agents=None) -> LlmA
     remotes = discover_remote_agents() if remote_agents is None else remote_agents
     return LlmAgent(
         name="shopdesk_orchestrator",
-        model=config.MODEL,
+        model=gemini(config.MODEL),
         description="Front desk that routes customer requests to specialists.",
         instruction=INSTRUCTION,
         sub_agents=[build_support_pipeline(), *remotes],
